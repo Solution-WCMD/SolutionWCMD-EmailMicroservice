@@ -18,7 +18,7 @@ java {
 }
 
 val javaLinVersion = "6.7.0"
-val angusMailVersion = "2.1.5"
+val angusMailVersion = "2.0.5"
 val jacksonVersion = "2.21.0"
 val simpleSlf4jVersion = "2.0.17"
 
