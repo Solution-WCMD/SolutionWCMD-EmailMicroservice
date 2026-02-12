@@ -19,10 +19,16 @@ java {
 
 val javaLinVersion = "6.7.0"
 val jakartaMailVersion = "2.1.5"
+val jacksonVersion = "2.21.0"
+val simpleSlf4jVersion = "2.0.17"
 
 dependencies {
     implementation("io.javalin:javalin:$javaLinVersion")
     implementation("jakarta.mail:jakarta.mail-api:$jakartaMailVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+
+    runtimeOnly("org.slf4j:slf4j-simple:$simpleSlf4jVersion")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
