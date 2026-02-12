@@ -13,18 +13,16 @@ public record ContactHandler(BasicAuthCredentials credentials, String targetMail
 
     @Override
     public void handle(@NotNull Context context) {
+        boolean application = Boolean.parseBoolean(context.queryParam("application"));
+
         ContactRequest request = context.bodyAsClass(ContactRequest.class);
 
         if (configureContextIfInvalidRequest(context, request)) {
             return;
         }
 
-        String title = request.title();
-        String message = request.message();
-        String from = request.fromEmail();
-
         try {
-            sendGmailSmtp(credentials.getUsername(), credentials.getPassword(), targetMail, title, message, from);
+            sendGmailSmtp(credentials.getUsername(), credentials.getPassword(), targetMail, request, application);
         } catch (MessagingException exception) {
             context.status(HttpStatus.INTERNAL_SERVER_ERROR);
             return;
@@ -36,9 +34,8 @@ public record ContactHandler(BasicAuthCredentials credentials, String targetMail
     private void sendGmailSmtp(String smtpUser,
                                String smtpPass,
                                String toEmail,
-                               String title,
-                               String message,
-                               String fromEmail) throws MessagingException {
+                               ContactRequest request,
+                               boolean isApplication) throws MessagingException {
 
         Session session = Session.getInstance(new MailProperties(), new Authenticator() {
             @Override
@@ -47,17 +44,19 @@ public record ContactHandler(BasicAuthCredentials credentials, String targetMail
             }
         });
 
+        String messageType = isApplication ? "[Application] " : "[Contact] ";
+
         MimeMessage mimeMessage = new MimeMessage(session);
         mimeMessage.setFrom(new InternetAddress(smtpUser));
         mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-        mimeMessage.setSubject("[Contact] " + title, "UTF-8");
+        mimeMessage.setSubject(messageType + request.title(), "UTF-8");
 
         String body = """
                 Title: %s
-                From: %s
+                From: %s %s
                 
                 %s
-                """.formatted(title, fromEmail, message);
+                """.formatted(request.title(), request.name(), request.email(), request.message());
 
         mimeMessage.setText(body, "UTF-8");
         Transport.send(mimeMessage);
@@ -73,7 +72,7 @@ public record ContactHandler(BasicAuthCredentials credentials, String targetMail
             return true;
         }
 
-        if (isNullOrEmpty(request.title()) || isNullOrEmpty(request.message()) || isNullOrEmpty(request.fromEmail())) {
+        if (isNullOrEmpty(request.title()) || isNullOrEmpty(request.message()) || isNullOrEmpty(request.email())) {
             context.status(HttpStatus.BAD_REQUEST)
                     .result("{\"error\":\"title, mail and message are required\"}");
             return true;
@@ -91,7 +90,7 @@ public record ContactHandler(BasicAuthCredentials credentials, String targetMail
             return true;
         }
 
-        if (request.fromEmail().length() < 4 || request.fromEmail().length() > 254) {
+        if (request.email().length() < 4 || request.email().length() > 254) {
             context.status(HttpStatus.BAD_REQUEST)
                     .result("{\"error\":\"fromEmail must be between 4 and 254 characters\"}");
             return true;

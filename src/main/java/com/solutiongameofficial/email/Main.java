@@ -2,7 +2,6 @@ package com.solutiongameofficial.email;
 
 import io.javalin.Javalin;
 import io.javalin.security.BasicAuthCredentials;
-import jakarta.mail.*;
 
 public class Main {
 
@@ -20,7 +19,7 @@ public class Main {
     private static Javalin createApplication(BasicAuthCredentials credentials, String targetMail) {
         Javalin app = Javalin.create(config -> config.http.defaultContentType = "application/json");
 
-        app.post("/contact", new ContactHandler(credentials, targetMail));
+        app.post("/contact/send", new ContactHandler(credentials, targetMail));
 
         return app;
     }
