@@ -12,6 +12,7 @@ permissions:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    environment: Deploy
     steps:
       - uses: actions/checkout@v4
 
