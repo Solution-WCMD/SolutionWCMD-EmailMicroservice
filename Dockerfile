@@ -1,10 +1,13 @@
 FROM eclipse-temurin:21-jdk AS builder
 WORKDIR /workspace
-COPY gradlew .
+
 COPY gradle ./gradle
-RUN chmod +x gradlew
+COPY gradlew .
 COPY build.gradle.kts settings.gradle.kts ./
+RUN chmod +x gradlew
+
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew clean build --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
