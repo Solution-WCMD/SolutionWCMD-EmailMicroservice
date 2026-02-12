@@ -16,15 +16,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Extract version
-        run: ./ci/extract-version.sh
+        run: ./scripts/extract-version.sh
 
       - name: Login to GHCR
         env:
           GHCR_USERNAME: KirilsTurkins
           GHCR_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: ./ci/ghcr-login.sh
+        run: ./scripts/ghcr-login.sh
 
       - name: Build and push
         env:
           IMAGE_NAME: ghcr.io/solution-wcmd/email-microservice
-        run: ./ci/build-and-push.sh
+        run: ./scripts/build-and-push.sh
